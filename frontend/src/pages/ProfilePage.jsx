@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/common/Navbar';
 import { User, Mail, MapPin, Key, Shield, Star } from 'lucide-react';
+import toast from 'react-hot-toast'; // Make sure to import toast
 
 const ProfilePage = () => {
   const { user, changePassword } = useAuth();
@@ -28,6 +29,14 @@ const ProfilePage = () => {
     }
   };
 
+  const getAverageRating = () => {
+    if (!user?.average_rating && user?.average_rating !== 0) return null;
+    const rating = parseFloat(user.average_rating);
+    return isNaN(rating) ? null : rating.toFixed(1);
+  };
+  
+  const formattedRating = getAverageRating();
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -82,12 +91,16 @@ const ProfilePage = () => {
                   <p className="text-gray-800 capitalize">{user?.role}</p>
                 </div>
               </div>
-              {user?.role === 'store_owner' && user?.average_rating && (
+              
+              {/* Fixed Store Owner Rating - Only one version, using the safe function */}
+              {user?.role === 'store_owner' && (
                 <div className="flex items-center space-x-3">
                   <Star className="h-5 w-5 text-yellow-400" />
                   <div>
                     <p className="text-sm text-gray-500">Store Rating</p>
-                    <p className="text-gray-800">{user?.average_rating?.toFixed(1)} / 5.0</p>
+                    <p className="text-gray-800">
+                      {formattedRating ? `${formattedRating} / 5.0` : 'No ratings yet'}
+                    </p>
                   </div>
                 </div>
               )}
